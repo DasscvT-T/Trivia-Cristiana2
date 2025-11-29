@@ -73,81 +73,94 @@
 <script>
 // Preguntas
 const preguntas = {
-  media:[ 
+ media:[ 
     {q:'¿Quién construyó el arca?', options:['Moisés','Noé','Abraham','Jacob'], a:1, ref:'Génesis 6'},
     {q:'¿Dónde nació Jesús?', options:['Nazaret','Belén','Jerusalén','Galilea'], a:1, ref:'Mateo 2:1'},
-    {q:'¿Cuántos días tardó Dios en crear el mundo?', options:['5','6','7','3'], a:1, ref:'Génesis 1'}
+    {q:'¿Cuántos días tardó Dios en crear el mundo?', options:['5','6','7','3'], a:1, ref:'Génesis 1'},
 
     {q:'¿Quién fue tragado por un gran pez?', options:['Daniel','Jonás','José','Pablo'], a:1, ref:'Jonás 1'},
     {q:'¿Cuál apóstol negó a Jesús tres veces?', options:['Juan','Pedro','Tomás','Santiago'], a:1, ref:'Mateo 26:69-75'},
-    {q:'¿Qué mujer se convirtió en estatua de sal?', options:['Sara','Rebeca','Esposa de Lot','Débora'], a:2, ref:'Génesis 19'}
+    {q:'¿Qué mujer se convirtió en estatua de sal?', options:['Sara','Rebeca','Esposa de Lot','Débora'], a:2, ref:'Génesis 19'},
+
     {q:'¿Quién tuvo una visión de un lienzo lleno de animales?', options:['Pedro','Juan','Pablo','Esteban'], a:0, ref:'Hechos 10'},
     {q:'¿Qué rey lanzó a Daniel al foso de los leones?', options:['Nabucodonosor','Saúl','Darío','Salomón'], a:2, ref:'Daniel 6'},
-    {q:'¿Qué profeta vio el valle de huesos secos?', options:['Isaías','Jeremías','Ezequiel','Amós'], a:2, ref:'Ezequiel 37'}
-  {q:'Agua, vino, milagro', 
- options:['Las bodas de Caná','La pesca milagrosa','Jesús camina sobre el agua','La resurrección de Lázaro'], 
- a:1},
+    {q:'¿Qué profeta vio el valle de huesos secos?', options:['Isaías','Jeremías','Ezequiel','Amós'], a:2, ref:'Ezequiel 37'},
 
-{q:'Arca, diluvio, animales', 
- options:['Abraham','Noé','Moisés','Elías'], 
- a:2},
+    {q:'Agua, vino, milagro', 
+      options:['Las bodas de Caná','La pesca milagrosa','Jesús camina sobre el agua','La resurrección de Lázaro'], 
+      a:0
+    },
 
-{q:'Gigante, piedra, honda', 
- options:['Sansón y los filisteos','Josué y Jericó','David y Goliat','Elías en el Carmelo'], 
- a:3},
+    {q:'Arca, diluvio, animales', 
+      options:['Abraham','Noé','Moisés','Elías'], 
+      a:1
+    },
 
-{q:'Sueños, vacas gordas, vacas flacas', 
- options:['Daniel en Babilonia','Salomón y la sabiduría','José en Egipto','Samuel con Elí'], 
- a:3},
+    {q:'Gigante, piedra, honda', 
+      options:['Sansón y los filisteos','Josué y Jericó','David y Goliat','Elías en el Carmelo'], 
+      a:2
+    },
 
-{q:'Pan, peces, multitud', 
- options:['El maná del desierto','La última cena','Jesús alimenta a los 5,000','El banquete de Ester'], 
- a:3},
+    {q:'Sueños, vacas gordas, vacas flacas', 
+      options:['Daniel en Babilonia','Salomón y la sabiduría','José en Egipto','Samuel con Elí'], 
+      a:2
+    },
 
- {q:'Capitán sirio, Eliseo, lepra', 
- options:['Ben-adad','Naamán','Hazael','Jehú'], 
- a:2},
+    {q:'Pan, peces, multitud', 
+      options:['El maná del desierto','La última cena','Jesús alimenta a los 5,000','El banquete de Ester'], 
+      a:2
+    },
 
-{q:'Monte donde Abraham iba a sacrificar a Isaac', 
- options:['Monte Sinaí','Monte Moriah','Monte Carmelo','Monte Hermón'], 
- a:2},
+    {q:'Capitán sirio, Eliseo, lepra', 
+      options:['Ben-adad','Naamán','Hazael','Jehú'], 
+      a:1
+    },
 
-{q:'Ciudad donde Jesús nació', 
- options:['Jerusalén','Capernaum','Belén','Nazaret'], 
- a:3},
+    {q:'Monte donde Abraham iba a sacrificar a Isaac', 
+      options:['Monte Sinaí','Monte Moriah','Monte Carmelo','Monte Hermón'], 
+      a:1
+    },
 
-{q:'Río donde Juan bautizaba', 
- options:['Nilo','Jordán','Tigris','Éufrates'], 
- a:2},
+    {q:'Ciudad donde Jesús nació', 
+      options:['Jerusalén','Capernaum','Belén','Nazaret'], 
+      a:2
+    },
 
-{q:'Ciudad cuyo muro cayó al sonar trompetas', 
- options:['Betel','Samaria','Jericó','Hebrón'], 
- a:3},
+    {q:'Río donde Juan bautizaba', 
+      options:['Nilo','Jordán','Tigris','Éufrates'], 
+      a:1
+    },
 
- {q:'Único libro que termina con signo de pregunta', 
- options:['Jonás','Ageo','Abdías','Nahúm'], 
- a:1},
+    {q:'Ciudad cuyo muro cayó al sonar trompetas', 
+      options:['Betel','Samaria','Jericó','Hebrón'], 
+      a:2
+    },
 
-{q:'Rey que murió comido por gusanos', 
- options:['Saúl','Acab','Herodes','Nabucodonosor'], 
- a:3},
+    {q:'Único libro que termina con signo de pregunta', 
+      options:['Jonás','Ageo','Abdías','Nahúm'], 
+      a:0
+    },
 
-{q:'Profeta que vio un rollo volando', 
- options:['Zacarías','Ezequiel','Jeremías','Isaías'], 
- a:1},
+    {q:'Rey que murió comido por gusanos', 
+      options:['Saúl','Acab','Herodes','Nabucodonosor'], 
+      a:2
+    },
 
-{q:'Hombre que cayó de una ventana mientras Pablo predicaba', 
- options:['Tíquico','Eutico','Onésimo','Rufo'], 
- a:2},
+    {q:'Profeta que vio un rollo volando', 
+      options:['Zacarías','Ezequiel','Jeremías','Isaías'], 
+      a:0
+    },
 
-{q:'Primera testigo de la resurrección de Jesús', 
- options:['María Magdalena','María la madre de Jesús','Salomé','Marta'], 
- a:1},
+    {q:'Hombre que cayó de una ventana mientras Pablo predicaba', 
+      options:['Tíquico','Eutico','Onésimo','Rufo'], 
+      a:1
+    },
 
-
-
-  ]
-};
+    {q:'Primera testigo de la resurrección de Jesús', 
+      options:['María Magdalena','María la madre de Jesús','Salomé','Marta'], 
+      a:0
+    }
+]
 
 let jugadores = [], puntuaciones = {}, turno = 0;
 let categoriaActual = 'facil';
