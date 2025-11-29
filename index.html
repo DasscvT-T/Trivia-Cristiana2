@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Trivia Cristiana — Versión Final Estable</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  body { font-family: Arial, sans-serif; background:#f2f2f2; padding:18px; color:#0f172a }
+  .wrap{max-width:920px;margin:0 auto}
+  .card { background:white; padding:18px; margin-bottom:14px; border-radius:10px; box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+  h1,h2{margin:6px 0}
+  textarea,input{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid #d1d5db}
+  button{padding:8px 12px;border-radius:8px;border:none;background:#2563eb;color:#fff;cursor:pointer}
+  button.secondary{background:#0ea5a4}
+  .players-list{display:flex;gap:10px;flex-wrap:wrap}
+  .player-card{background:#eef2ff;padding:8px;border-radius:8px}
+  .options{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .option{padding:14px;border-radius:10px;border:2px solid #94a3b8;background:#ffffff;cursor:pointer;text-align:left;font-size:18px;font-weight:600;display:block;color:#0f172a}
+  .option.correct{background:#ecfdf5;border-color:#10b981}
+  .option.wrong{background:#fff1f2;border-color:#ef4444}
+  table{width:100%;border-collapse:collapse}
+  td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  @media(max-width:600px){.players-list{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Trivia Cristiana </h1>
+
+  <div class="card" id="setupCard">
+    <h2>Registrar jugadores</h2>
+    <p>Escribe un nombre por línea (mínimo 1 jugador)</p>
+    <textarea id="nombres" rows="4" placeholder="Ejemplo:\nJosué\nMaría\nKevin"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button id="guardarBtn">Guardar jugadores</button>
+      <button id="clearBtn" class="secondary" type="button">Limpiar</button>
+    </div>
+    <p style="margin-top:8px"><strong>Jugadores registrados:</strong></p>
+    <div id="listaJugadores" class="players-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Juego</h2>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <label>Categoria:</label>
+      <select id="categoriaSelect">
+        <option value="media">Media</option>
+      </select>
+      <button id="startBtn" class="secondary">Comenzar / Siguiente pregunta</button>
+    </div>
+
+    <div id="turnoInfo" style="margin-top:12px">
+      <strong>Turno:</strong> <span id="jugadorActual">-</span>
+    </div>
+
+    <div id="questionArea" style="margin-top:12px;display:none">
+      <div id="pregunta" style="font-weight:700"></div>
+      <div id="referencia" style="color:#374151;margin-top:6px;font-size:0.95rem"></div>
+      <div class="options" id="opciones"></div>
+      <div id="autoInfo" style="margin-top:8px;color:#6b7280;font-size:0.9rem"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Marcador</h2>
+    <table>
+      <thead><tr><th>Jugador</th><th>Puntos</th></tr></thead>
+      <tbody id="scoreboard"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Preguntas
+const preguntas = {
+  media:[ 
+    {q:'¿Quién construyó el arca?', options:['Moisés','Noé','Abraham','Jacob'], a:1, ref:'Génesis 6'},
+    {q:'¿Dónde nació Jesús?', options:['Nazaret','Belén','Jerusalén','Galilea'], a:1, ref:'Mateo 2:1'},
+    {q:'¿Cuántos días tardó Dios en crear el mundo?', options:['5','6','7','3'], a:1, ref:'Génesis 1'}
+
+    {q:'¿Quién fue tragado por un gran pez?', options:['Daniel','Jonás','José','Pablo'], a:1, ref:'Jonás 1'},
+    {q:'¿Cuál apóstol negó a Jesús tres veces?', options:['Juan','Pedro','Tomás','Santiago'], a:1, ref:'Mateo 26:69-75'},
+    {q:'¿Qué mujer se convirtió en estatua de sal?', options:['Sara','Rebeca','Esposa de Lot','Débora'], a:2, ref:'Génesis 19'}
+    {q:'¿Quién tuvo una visión de un lienzo lleno de animales?', options:['Pedro','Juan','Pablo','Esteban'], a:0, ref:'Hechos 10'},
+    {q:'¿Qué rey lanzó a Daniel al foso de los leones?', options:['Nabucodonosor','Saúl','Darío','Salomón'], a:2, ref:'Daniel 6'},
+    {q:'¿Qué profeta vio el valle de huesos secos?', options:['Isaías','Jeremías','Ezequiel','Amós'], a:2, ref:'Ezequiel 37'}
+  {q:'Agua, vino, milagro', 
+ options:['Las bodas de Caná','La pesca milagrosa','Jesús camina sobre el agua','La resurrección de Lázaro'], 
+ a:1},
+
+{q:'Arca, diluvio, animales', 
+ options:['Abraham','Noé','Moisés','Elías'], 
+ a:2},
+
+{q:'Gigante, piedra, honda', 
+ options:['Sansón y los filisteos','Josué y Jericó','David y Goliat','Elías en el Carmelo'], 
+ a:3},
+
+{q:'Sueños, vacas gordas, vacas flacas', 
+ options:['Daniel en Babilonia','Salomón y la sabiduría','José en Egipto','Samuel con Elí'], 
+ a:3},
+
+{q:'Pan, peces, multitud', 
+ options:['El maná del desierto','La última cena','Jesús alimenta a los 5,000','El banquete de Ester'], 
+ a:3},
+
+ {q:'Capitán sirio, Eliseo, lepra', 
+ options:['Ben-adad','Naamán','Hazael','Jehú'], 
+ a:2},
+
+{q:'Monte donde Abraham iba a sacrificar a Isaac', 
+ options:['Monte Sinaí','Monte Moriah','Monte Carmelo','Monte Hermón'], 
+ a:2},
+
+{q:'Ciudad donde Jesús nació', 
+ options:['Jerusalén','Capernaum','Belén','Nazaret'], 
+ a:3},
+
+{q:'Río donde Juan bautizaba', 
+ options:['Nilo','Jordán','Tigris','Éufrates'], 
+ a:2},
+
+{q:'Ciudad cuyo muro cayó al sonar trompetas', 
+ options:['Betel','Samaria','Jericó','Hebrón'], 
+ a:3},
+
+ {q:'Único libro que termina con signo de pregunta', 
+ options:['Jonás','Ageo','Abdías','Nahúm'], 
+ a:1},
+
+{q:'Rey que murió comido por gusanos', 
+ options:['Saúl','Acab','Herodes','Nabucodonosor'], 
+ a:3},
+
+{q:'Profeta que vio un rollo volando', 
+ options:['Zacarías','Ezequiel','Jeremías','Isaías'], 
+ a:1},
+
+{q:'Hombre que cayó de una ventana mientras Pablo predicaba', 
+ options:['Tíquico','Eutico','Onésimo','Rufo'], 
+ a:2},
+
+{q:'Primera testigo de la resurrección de Jesús', 
+ options:['María Magdalena','María la madre de Jesús','Salomé','Marta'], 
+ a:1},
+
+
+
+  ]
+};
+
+let jugadores = [], puntuaciones = {}, turno = 0;
+let categoriaActual = 'facil';
+let usadas = {facil:new Set(), media:new Set(), dificil:new Set()};
+let currentQuestion = null;
+let lockAnswer = false;
+let autoTimer = null;
+const AUTO_SECONDS = 10;
+
+const nombresEl = document.getElementById('nombres');
+const guardarBtn = document.getElementById('guardarBtn');
+const clearBtn = document.getElementById('clearBtn');
+const listaJugadoresEl = document.getElementById('listaJugadores');
+const categoriaSelect = document.getElementById('categoriaSelect');
+const startBtn = document.getElementById('startBtn');
+const jugadorActualEl = document.getElementById('jugadorActual');
+const questionArea = document.getElementById('questionArea');
+const preguntaEl = document.getElementById('pregunta');
+const referenciaEl = document.getElementById('referencia');
+const opcionesEl = document.getElementById('opciones');
+const scoreboardEl = document.getElementById('scoreboard');
+const autoInfoEl = document.getElementById('autoInfo');
+
+function actualizarListaVisual(){
+  listaJugadoresEl.innerHTML = '';
+  jugadores.forEach((name,i)=>{
+    const div = document.createElement('div');
+    div.className = 'player-card';
+    div.textContent = name + ' — ' + (puntuaciones[name] || 0) + ' pts';
+    if(i===turno) div.style.outline = '2px solid #fde68a';
+    listaJugadoresEl.appendChild(div);
+  });
+  actualizarScoreboard();
+}
+
+function actualizarScoreboard(){
+  scoreboardEl.innerHTML = '';
+  jugadores.forEach(name=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${name}</td><td>${puntuaciones[name] ?? 0}</td>`;
+    scoreboardEl.appendChild(tr);
+  });
+}
+
+function registrarJugadores(){
+  const texto = nombresEl.value.trim();
+  if(!texto){ alert('Escribe al menos un nombre'); return; }
+  // split by newlines (handles Windows/Unix)
+  jugadores = texto.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  if(jugadores.length===0){ alert('No hay nombres válidos'); return; }
+  puntuaciones = {};
+  jugadores.forEach(n=>puntuaciones[n]=0);
+  turno = 0;
+  usadas = {facil:new Set(), media:new Set(), dificil:new Set()};
+  actualizarListaVisual();
+  jugadorActualEl.textContent = jugadores[0];
+  questionArea.style.display='none';
+}
+
+function pickQuestionIndex(cat){
+  const pool = preguntas[cat];
+  if(!pool || pool.length===0) return -1;
+  if(usadas[cat].size >= pool.length) usadas[cat].clear();
+  const disp = [];
+  pool.forEach((_,i)=>{ if(!usadas[cat].has(i)) disp.push(i); });
+  if(disp.length===0) return -1;
+  return disp[Math.floor(Math.random()*disp.length)];
+}
+
+function loadQuestion(){
+  if(jugadores.length===0){ alert('Registra jugadores primero'); return; }
+  clearAutoTimer();
+  lockAnswer = false;
+
+  const cat = categoriaSelect.value;
+  const idx = pickQuestionIndex(cat);
+  if(idx < 0){ alert('No hay preguntas disponibles en esta categoría'); return; }
+  const q = preguntas[cat][idx];
+  usadas[cat].add(idx);
+  currentQuestion = q;
+
+  preguntaEl.textContent = q.q;
+  referenciaEl.textContent = 'Ref: ' + (q.ref || 'N/A');
+  opcionesEl.innerHTML = '';
+
+  q.options.forEach((op,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.type = 'button';
+    btn.textContent = op;
+    btn.onclick = ()=>handleAnswer(i,btn);
+    opcionesEl.appendChild(btn);
+  });
+
+  questionArea.style.display = 'block';
+  startAutoTimer();
+}
+
+function handleAnswer(i, btn){
+  if(lockAnswer) return;
+  lockAnswer = true;
+  clearAutoTimer();
+  opcionesEl.querySelectorAll('button').forEach(b=>b.style.pointerEvents='none');
+
+  if(i === currentQuestion.a){
+    btn.classList.add('correct');
+    const player = jugadores[turno];
+    puntuaciones[player] = (puntuaciones[player] || 0) + 1;
+  }else{
+    btn.classList.add('wrong');
+    const correctBtn = opcionesEl.children[currentQuestion.a];
+    if(correctBtn) correctBtn.classList.add('correct');
+  }
+
+  actualizarListaVisual();
+
+  setTimeout(()=>{
+    turno = (turno+1) % jugadores.length;
+    jugadorActualEl.textContent = jugadores[turno];
+    loadQuestion();
+  },1000);
+}
+
+function startAutoTimer(){
+  let r = AUTO_SECONDS;
+  autoInfoEl.textContent = `Se avanzará automáticamente en ${r}s`;
+
+  autoTimer = setInterval(()=>{
+    r--;
+    autoInfoEl.textContent = `Se avanzará automáticamente en ${r}s`;
+
+    if(r<=0){ clearAutoTimer(); timeoutAdvance(); }
+  },1000);
+}
+function clearAutoTimer(){ if(autoTimer){ clearInterval(autoTimer); autoTimer=null; autoInfoEl.textContent=''; } }
+
+function timeoutAdvance(){
+  const correctBtn = opcionesEl.children[currentQuestion.a];
+  if(correctBtn) correctBtn.classList.add('correct');
+  setTimeout(()=>{
+    turno = (turno+1) % jugadores.length;
+    jugadorActualEl.textContent = jugadores[turno];
+    loadQuestion();
+  },800);
+}
+
+// Eventos
+
+guardarBtn.onclick = registrarJugadores;
+clearBtn.onclick = ()=>{ nombresEl.value=''; jugadores=[]; puntuaciones={}; actualizarListaVisual(); questionArea.style.display='none'; };
+startBtn.onclick = loadQuestion;
+
+</script>
+</body>
+</html>
